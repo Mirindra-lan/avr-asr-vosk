@@ -20,63 +20,6 @@ if (!fs.existsSync(modelPath)) {
   process.exit();
 }
 
-/**
- * Advanced upsampling from 8kHz to 16kHz using linear interpolation
- * @param {Buffer} audioBuffer - Input audio buffer at 8kHz
- * @returns {Buffer} - Upsampled audio buffer at 16kHz
- */
-const upsampleAudio = (audioBuffer) => {
-  // Validate input
-  if (!audioBuffer || audioBuffer.length === 0) {
-    console.warn("Empty or null audio buffer received");
-    return Buffer.alloc(0);
-  }
-  
-  // Ensure buffer length is even (16-bit samples)
-  if (audioBuffer.length % 2 !== 0) {
-    console.warn("Audio buffer length is odd, truncating last byte");
-    audioBuffer = audioBuffer.slice(0, audioBuffer.length - 1);
-  }
-  
-  const inputSamples = audioBuffer.length / 2; // 16-bit samples
-  
-  if (inputSamples === 0) {
-    return Buffer.alloc(0);
-  }
-  
-  const outputSamples = inputSamples * 2; // Double the number of samples
-  const outputBuffer = Buffer.alloc(outputSamples * 2);
-  
-  for (let i = 0; i < outputSamples; i++) {
-    if (i % 2 === 0) {
-      // Keep original samples at even positions
-      const originalIndex = i / 2;
-      if (originalIndex < inputSamples) {
-        const sample = audioBuffer.readInt16LE(originalIndex * 2);
-        outputBuffer.writeInt16LE(sample, i * 2);
-      }
-    } else {
-      // Interpolate samples at odd positions
-      const prevIndex = Math.floor(i / 2);
-      const nextIndex = Math.ceil(i / 2);
-      
-      if (prevIndex < inputSamples && nextIndex < inputSamples) {
-        const prevSample = audioBuffer.readInt16LE(prevIndex * 2);
-        const nextSample = audioBuffer.readInt16LE(nextIndex * 2);
-        
-        // Linear interpolation
-        const interpolatedSample = Math.round((prevSample + nextSample) / 2);
-        outputBuffer.writeInt16LE(interpolatedSample, i * 2);
-      } else if (prevIndex < inputSamples) {
-        // Use previous sample if next is out of bounds
-        const sample = audioBuffer.readInt16LE(prevIndex * 2);
-        outputBuffer.writeInt16LE(sample, i * 2);
-      }
-    }
-  }
-  
-  return outputBuffer;
-};
 
 /**
  * Handles an audio stream from the client and uses Vosk ASR
@@ -107,7 +50,7 @@ const handleAudioStream = async (req, res) => {
         }
         
         // Use synchronous acceptWaveform (the correct API)
-        if (rec.acceptWaveform(upsampledChunk)) {
+        if (rec.acceptWaveform(chunk)) {
           const result = rec.result();
           console.log("Partial result:", result);
           if (result.text) {
@@ -117,7 +60,6 @@ const handleAudioStream = async (req, res) => {
         }
       } catch (error) {
         console.error("Error processing audio chunk:", error);
-        console.error("Chunk details - Original:", chunk.length, "Upsampled:", upsampledChunk?.length || 0);
       }
     });
 

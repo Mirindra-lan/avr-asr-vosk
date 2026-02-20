@@ -78,15 +78,11 @@ This application sets up an Express.js server that accepts audio streams from cl
 
 The server listens for audio streams on a specific route (`/speech-to-text-stream`) and passes the incoming audio to the Vosk recognizer for real-time transcription.
 
-### 2. **Audio Upsampling**
-
-Since Vosk expects 16kHz audio but the incoming stream is at 8kHz, the application includes an advanced upsampling function that uses linear interpolation to convert the audio to the correct sample rate.
-
-### 3. **Vosk Speech Recognition**
+### 2. **Vosk Speech Recognition**
 
 The Vosk recognizer processes the audio data received from the client and converts it into text using offline neural network models. The results are streamed back to the client in real-time.
 
-### 4. **Route /speech-to-text-stream**
+### 3. **Route /speech-to-text-stream**
 
 This route accepts audio streams from the client and processes them for transcription. The transcription is sent back to the client as soon as it's available.
 
