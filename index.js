@@ -40,14 +40,6 @@ const handleAudioStream = async (req, res) => {
 
     req.on("data", async (chunk) => {      
       try {
-        // Upsample from 8kHz to 16kHz
-        const upsampledChunk = upsampleAudio(chunk);
-        
-        // Validate upsampled chunk
-        if (upsampledChunk.length === 0) {
-          console.warn("Warning: Upsampled chunk is empty");
-          return;
-        }
         
         // Use synchronous acceptWaveform (the correct API)
         if (rec.acceptWaveform(chunk)) {
