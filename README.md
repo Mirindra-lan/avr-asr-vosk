@@ -33,7 +33,7 @@ Before setting up the project, ensure you have the following:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/agentvoiceresponse/avr-asr-vosk.git
+git clone https://github.com/Mirindra-lan/avr-asr-vosk.git
 cd avr-asr-vosk
 ```
 
